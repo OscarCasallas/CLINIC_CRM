@@ -13,6 +13,10 @@ app.use(express.json());
 const rutasPacientes = require('./routes/pacientes');
 app.use('/api', rutasPacientes);
 
+
+const rutasUsuarios = require("./routes/usuarios");
+app.use("/api/usuarios", rutasUsuarios);
+
 // Conectar a MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('🟢 Conectado a MongoDB Atlas'))
