@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Paciente = require('../models/ModeloPaciente');
+const LogAuditoria = require('../models/ModeloLog');
 
 // Ruta de prueba para verificar token
 router.get('/', (req, res) => {
@@ -12,6 +13,11 @@ router.post('/', async (req, res) => {
   try {
     const nuevoPaciente = new Paciente(req.body);
     await nuevoPaciente.save();
+    await LogAuditoria.create({
+      usuario: req.usuario.nombre,
+      accion: 'CREAR',
+      descripcion: `Registró al paciente ${nuevoPaciente.nombre} con cédula ${nuevoPaciente.cedula}`,
+    });
     res.status(201).json({ mensaje: 'Paciente registrado correctamente' });
   } catch (error) {
     res.status(400).json({ mensaje: 'Error al registrar paciente', error });
@@ -39,12 +45,27 @@ router.put('/:cedula', async (req, res) => {
     { new: true }
   );
   res.json(pacienteActualizado);
+  await LogAuditoria.create({
+    usuario: req.usuario.nombre,
+    accion: 'EDITAR',
+    descripcion: `Editó al paciente ${pacienteActualizado.nombre} con cédula ${pacienteActualizado.cedula}`,
+  });
 });
 
 // Eliminar paciente
 router.delete('/:cedula', async (req, res) => {
   await Paciente.findOneAndDelete({ cedula: req.params.cedula });
   res.json({ mensaje: 'Paciente eliminado correctamente' });
+  await LogAuditoria.create({
+    usuario: req.usuario.nombre,
+    accion: 'ELIMINAR',
+    descripcion: `Eliminó al paciente con cédula ${req.params.cedula}`,
+  });
+});
+
+router.get('/logs', async (req, res) => {
+  const logs = await LogAuditoria.find().sort({ fecha: -1 });
+  res.json(logs);
 });
 
 module.exports = router;
