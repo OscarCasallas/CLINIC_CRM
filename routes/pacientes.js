@@ -8,6 +8,12 @@ router.get('/', (req, res) => {
   res.json({ mensaje: `Token válido. Bienvenido, ${req.usuario.nombre}` });
 });
 
+// Obtener logs de auditoría
+router.get('/logs', async (req, res) => {
+  const logs = await LogAuditoria.find().sort({ fecha: -1 });
+  res.json(logs);
+});
+
 // Registrar paciente
 router.post('/', async (req, res) => {
   try {
@@ -62,10 +68,5 @@ router.delete('/:cedula', async (req, res) => {
     descripcion: `Eliminó al paciente con cédula ${req.params.cedula}`,
   });
 });
-
-router.get('/logs', async (req, res) => {
-  const logs = await LogAuditoria.find().sort({ fecha: -1 });
-  res.json(logs);
-});
-
+// Exportar el router para usarlo en index.js
 module.exports = router;
