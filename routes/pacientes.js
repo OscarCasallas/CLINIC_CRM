@@ -2,8 +2,13 @@ const express = require('express');
 const router = express.Router();
 const Paciente = require('../models/ModeloPaciente');
 
-// Ruta para registrar un nuevo paciente
-router.post('/pacientes', async (req, res) => {
+// Ruta de prueba para verificar token
+router.get('/', (req, res) => {
+  res.json({ mensaje: `Token válido. Bienvenido, ${req.usuario.nombre}` });
+});
+
+// Registrar paciente
+router.post('/', async (req, res) => {
   try {
     const nuevoPaciente = new Paciente(req.body);
     await nuevoPaciente.save();
@@ -13,65 +18,33 @@ router.post('/pacientes', async (req, res) => {
   }
 });
 
-// Ruta para obtener todos los pacientes
-router.get('/pacientes', async (req, res) => {
-  try {
-    const pacientes = await Paciente.find();
-    res.json(pacientes);
-  } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener pacientes', error });
-  }
+// Obtener todos los pacientes
+router.get('/todos', async (req, res) => {
+  const pacientes = await Paciente.find();
+  res.json(pacientes);
 });
 
-// Ruta para obtener un paciente por cédula
-router.get('/pacientes/:cedula', async (req, res) => {
-  try {
-    const paciente = await Paciente.findOne({ cedula: req.params.cedula });
-
-    if (!paciente) {
-      return res.status(404).json({ mensaje: 'Paciente no encontrado' });
-    }
-
-    res.status(200).json(paciente);
-  } catch (error) {
-    res.status(500).json({ mensaje: 'Error al buscar paciente', error });
-  }
+// Obtener paciente por cédula
+router.get('/:cedula', async (req, res) => {
+  const paciente = await Paciente.findOne({ cedula: req.params.cedula });
+  if (!paciente) return res.status(404).json({ mensaje: 'Paciente no encontrado' });
+  res.json(paciente);
 });
 
-// Ruta para actualizar un paciente por cédula
-router.put('/pacientes/:cedula', async (req, res) => {
-  try {
-    const pacienteActualizado = await Paciente.findOneAndUpdate(
-      { cedula: req.params.cedula }, // Buscar por cédula
-      req.body,                      // Datos nuevos
-      { new: true }                  // Devolver el documento actualizado
-    );
-
-    if (!pacienteActualizado) {
-      return res.status(404).json({ mensaje: 'Paciente no encontrado' });
-    }
-
-    res.json({ mensaje: 'Paciente actualizado correctamente', paciente: pacienteActualizado });
-  } catch (error) {
-    res.status(400).json({ mensaje: 'Error al actualizar paciente', error });
-  }
+// Editar paciente
+router.put('/:cedula', async (req, res) => {
+  const pacienteActualizado = await Paciente.findOneAndUpdate(
+    { cedula: req.params.cedula },
+    req.body,
+    { new: true }
+  );
+  res.json(pacienteActualizado);
 });
 
-
-// Ruta para eliminar un paciente por cédula
-router.delete('/pacientes/:cedula', async (req, res) => {
-  try {
-    const pacienteEliminado = await Paciente.findOneAndDelete({ cedula: req.params.cedula });
-
-    if (!pacienteEliminado) {
-      return res.status(404).json({ mensaje: 'Paciente no encontrado' });
-    }
-
-    res.json({ mensaje: 'Paciente eliminado correctamente' });
-  } catch (error) {
-    res.status(400).json({ mensaje: 'Error al eliminar paciente', error });
-  }
+// Eliminar paciente
+router.delete('/:cedula', async (req, res) => {
+  await Paciente.findOneAndDelete({ cedula: req.params.cedula });
+  res.json({ mensaje: 'Paciente eliminado correctamente' });
 });
-
 
 module.exports = router;

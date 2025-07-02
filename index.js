@@ -1,21 +1,23 @@
 const express = require('express');
-const mongoose = require ('mongoose');
-require ('dotenv').config();//usar variables ocultas
-
+const mongoose = require('mongoose');
+require('dotenv').config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware para permitir recibir datos JSON
 app.use(express.json());
 
-//Rutas
-const rutasPacientes = require('./routes/pacientes');
-app.use('/api', rutasPacientes);
+// Importar middleware de autenticación
+const verificarToken = require('./middleware/authMiddleware');
 
-
+// Rutas públicas (no requieren token)
 const rutasUsuarios = require("./routes/usuarios");
 app.use("/api/usuarios", rutasUsuarios);
+
+// Rutas protegidas (requieren token)
+const rutasPacientes = require('./routes/pacientes');
+app.use('/api/pacientes', verificarToken, rutasPacientes);
 
 // Conectar a MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)
