@@ -29,6 +29,11 @@ app.get('/', (req, res) => {
   res.send('¡Bienvenido a la API del consultorio!');
 });
 
+//Ruta par Health Check de Render
+app.get('/healthz', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // Arrancar el servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
