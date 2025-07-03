@@ -53,6 +53,16 @@ router.post("/login", async (req, res) => {
       { expiresIn: "2h" }
     );
 
+    //Registrarlog 
+    await LogAuditoria.create({
+      uduariosId: usuario._id,
+      usuario: usuario.nombre,
+      accion: 'LOGIN',
+      descripcion: `Usuario ${usuario.nombre} ha iniciado sesión`
+    });
+
+    res.json({ token, nombre: usuario.nombre});
+
     res.status(200).json({ mensaje: "Login exitoso", token });
   } catch (error) {
     res.status(500).json({ error: error.message });
