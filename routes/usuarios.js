@@ -56,7 +56,7 @@ router.post("/login", async (req, res) => {
 
     //Registrarlog 
     await LogAuditoria.create({
-      uduariosId: usuario._id,
+      usuariosId: usuario._id,
       usuario: usuario.nombre,
       accion: 'LOGIN',
       descripcion: `Usuario ${usuario.nombre} ha iniciado sesión`

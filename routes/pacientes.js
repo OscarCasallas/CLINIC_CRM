@@ -3,6 +3,7 @@ const router = express.Router();
 const Paciente = require('../models/ModeloPaciente');
 const LogAuditoria = require('../models/ModeloLog');
 const registrarAccion = require('../middleware/middlewareAuditoria');
+const verificarToken = require('../middleware/authMiddleware');
 
 // Ruta de prueba para verificar token
 router.get('/', (req, res) => {
@@ -10,7 +11,7 @@ router.get('/', (req, res) => {
 });
 
 // Obtener logs de auditoría(Solo usuario autenticado)
-router.get('/logs', async (req, res) => {
+router.get('/logs',verificarToken, async (req, res) => {
   try 
   {
     const logs = await LogAuditoria.find({usuariosId: req.usuario._id}).sort({ fecha: -1 });
@@ -23,7 +24,7 @@ router.get('/logs', async (req, res) => {
 });
 
 // Registrar paciente
-router.post('/', registrarAccion ('CREAR'),async (req, res) => {
+router.post('/', verificarToken, registrarAccion ('CREAR'),async (req, res) => {
   try {
     const nuevoPaciente = new Paciente(req.body);
     await nuevoPaciente.save();
@@ -47,7 +48,7 @@ router.get('/:cedula', async (req, res) => {
 });
 
 // Editar paciente
-router.put('/:cedula', registrarAccion('EDITAR'), async (req, res) => {
+router.put('/:cedula', verificarToken, registrarAccion('EDITAR'), async (req, res) => {
   const pacienteActualizado = await Paciente.findOneAndUpdate(
     { cedula: req.params.cedula },
     req.body,
@@ -57,7 +58,7 @@ router.put('/:cedula', registrarAccion('EDITAR'), async (req, res) => {
 });
 
 // Eliminar paciente
-router.delete('/:cedula', registrarAccion('ELIMINAR'), async (req, res) => {
+router.delete('/:cedula', verificarToken, registrarAccion('ELIMINAR'), async (req, res) => {
   await Paciente.findOneAndDelete({ cedula: req.params.cedula });
   res.json({ mensaje: 'Paciente eliminado correctamente' });
 });

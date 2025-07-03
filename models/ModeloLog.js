@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const logSchema = new mongoose.Schema({
+  usuariosId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Usuario',
+    required: true,
+  },
   usuario: {
     type: String,
     required: true,
@@ -8,7 +13,7 @@ const logSchema = new mongoose.Schema({
   accion: {
     type: String,
     required: true,
-    enum: ['CREAR', 'EDITAR', 'ELIMINAR'],
+    enum: ['CREAR', 'EDITAR', 'ELIMINAR', 'LOGIN'],
   },
   descripcion: {
     type: String,
